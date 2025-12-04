@@ -18,10 +18,8 @@ class LearningMatrix(Node):
         self.non_reward = 0 
 
 
-        # goal states for attacker / defender: 
-        # goal of attacker is negative reward of defender 
-        self.goal_attack = []
-        self.goal_defend = []
+        # goal states for attacker
+        self.goal_states = []
 
         # initialized state 
         self.curr_state = []
@@ -74,9 +72,7 @@ class LearningMatrix(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     node = LearningMatrix()
-
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

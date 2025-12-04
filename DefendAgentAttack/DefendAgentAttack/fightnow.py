@@ -1,5 +1,4 @@
 import rclpy
-import sys
 from rclpy.node import Node
 import time
 
@@ -17,7 +16,7 @@ from omx_cpp_interface.msg import ArmGripperPosition, ArmJointAngles
 
 
 class ExecuteOptimal(Node):
-    def __init__(self, player):
+    def __init__(self):
         super().__init__('execute_optimal_policy')
         # getting shared directory to be able to access q_matrix
 
@@ -57,18 +56,19 @@ class ExecuteOptimal(Node):
         self.actions = np.loadtxt(action_pth)
 
 
-        # Atack agent states are indicies 0-1 and Defend are 2-3 
-        # index 0 represents the Attack Agent stance relative to Defense
-        # ==> 0 - in front, 1 - to the Right, 2 - to the left 
-        # index 1 represens the A Agent arm up (0), or down (1)
-        # index 2 represents the D Agent stance relative to Defense
-        # ===> forward facing (0), not seeing (1)
-        # index 3 represents the D Agent Arm position 
-        # ==> home/up (0), arm_down_right (1), arm_down_left (2)
+
+
+        # Attack and Defend Agents have the same types of actions 
+        # [0, 1,  2, 3, 4]
+        # 0 - home pose - facing the robot and arm is up 
+        # 1 - Attack Moves to the Left (not facing Def), Defense Rotates 90 degrees to the Right 
+        # 2 - Attack moves to the Right (not facing Def), Defense rotates 90 degrees to the left 
+        # 3 - Attack Moves arm down right, Defense shields right 
+        # 4 - Attack Moves arm down left, Defense shields Left
         state_pth = os.path.join(self.share, 'matrices', 'states.txt')
         self.states = np.loadtxt(state_pth)
 
-
+        
 
         matrix_path = os.path.join(self.share, 'matrices', 'RL_matrix.txt')
         self.q_matrix = np.loadtxt(matrix_path) # np array of q_matrix 
@@ -255,8 +255,6 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
-    main()
 
 
 
