@@ -155,7 +155,7 @@ class ExecuteOptimal(Node):
             r_act = action[self.player_idx] # get the specific action 
 
             lat_velocity = 0.25 # R = +, L = - 
-            good_dist =
+            good_dist = 0.75 
 
             if r_act == "home":
                 # making sure you are facing the other person 

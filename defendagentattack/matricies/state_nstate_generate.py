@@ -17,7 +17,7 @@ def main():
     s_len = len(states)
     
 
-    state_nstate = -1*np.ones((s_len,s_len)) # default value 
+    state_nstate = -1*np.ones((s_len,s_len)) # default value is negative one 
 
     # next state is only possible if both robots perform an action ---> can't stay still
     # with what states are actions avaialbe
@@ -32,6 +32,9 @@ def main():
         # look at each column item ===> get current 
         curr_state = np.array(states[curr_idx])
         for next_idx, val in enumerate(next_list):
+
+                    # self.player_exp_actions = {"attack": ["home","M_R","M_L","arm"],
+                    #           "defend" : ["home", "A_R", "A_L"]}
             # 
             n_state = np.array(states[next_idx])
 
