@@ -54,7 +54,7 @@ class ReinforceLearn(Node):
         state_n_state = os.path.join(self.share, 'matrices', 'state_nstate.txt')
         self.state_n_state = np.loadtxt(state_n_state)
 
-        # known goal states for attacker and defending 
+        # known goal states for attacker and defending --> # No known states, just possible ones
 
 
         # initialize RL matrix 
