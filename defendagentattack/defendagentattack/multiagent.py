@@ -11,6 +11,10 @@ from AttackDefend_interfaces.msg import Reward, Action
 from rclpy.qos import qos_profile_sensor_data
 import time 
 
+def joint_action_to_index(a_A, a_D):
+    """Encodes the (a_A, a_D) pair into a single index (0 to 11)."""
+    return a_A + 5 * a_D # both attacker and defending have 4 acions
+
 
 class ReinforceLearn(Node):
     def __init__(self):
@@ -47,14 +51,22 @@ class ReinforceLearn(Node):
         state_pth = os.path.join(self.share, 'matrices', 'states.txt')
         self.states = np.loadtxt(state_pth)
 
+        state_n_state = os.path.join(self.share, 'matrices', 'state_nstate.txt')
+        self.state_n_state = np.loadtxt(state_n_state)
 
-        # Initialize RL matrix 
-        self.RL_matrix = []
+        # known goal states for attacker and defending 
 
 
+        # initialize RL matrix 
+        self.RL_matrix = np.zeros((len(self.states), len(self.actions), 2)) # state-action-agenr(3 column matrix)
+        self.old_RL_matrix = self.RL_matrix.copy() # convergence 
+
+        # intiatlizing variables 
+        self.curr_state_idx = 0 
+        self.cur_reward = None 
+        self.t = 0 
         # call the algorithm
-
-    
+        self.start_RL_algorithm
 
 
     def start_RL_algorithm(self):
@@ -62,15 +74,67 @@ class ReinforceLearn(Node):
 
         # save matrix once Learning has converged 
 
-        curr_action = 0 
+        max_trj = 500 
 
-        self.action_pub.publish(curr_action)
+        if self.t >= max_trj:  # RL algorithm was has converged 
+            self.save_matrix()
+
+        next_state_idx = random.randint(0, len(self.states))
+        while self.action_matrix[self.curr_state_idx][next_state_idx] == -1:
+            next_state_idx = random.randint(0, len(self.states))
+
+        self.next_state_idx = next_state_idx 
+        self.joint_action_idx = self.action_matrix[self.curr_state_idx][self.next_state_idx]
+        self.curr_joint_action = self.actions[self.joint_action_idx]
+
+        self.V_s_prime = None  # resetting this parameter 
+        action_msg = Action()
+        action_msg.action_id = self.joint_action_idx
+
+        self.action_pub.publish(action_msg)
 
 
+    def update_matrix(self):
+        # given an agent id 
+        agent_list  = ['A','D']
+        
+        for agent_id, _ in agent_list: 
+            
+            r_i = self.cur_reward[agent_id]
+            alpha = 1 
+            gamma = 1 
+
+            # get random joint actino, by random decison of 
+            self.curr_action = self.actions[self.joint_action_idx]
+
+            Q_s_prime_i_flat = self.RL_matrix[self.next_state_idx, :, agent_id] 
+            
+            # Reshape into the 5x5 Game Matrix M_i (rows=agent_i, columns=opponent)
+            M_game_i = Q_s_prime_i_flat.reshape(5,5)
+
+            # 2. Calculate the maxminvalue 
+            maxmin = np.max(np.min(M_game_i, axis=1))
+
+            # get the curr value for the next stat e
+            old_q_val = self.RL_matrix[self.curr_state_idx, self.joint_action_idx, agent_id]
+
+            # update based on the Minimax Bellman equation
+            new_q_agent = old_q_val + alpha * (r_i + gamma * maxmin - old_q_val)
+            self.RL_matrix[self.curr_state_idx, self.joint_action_idx, agent_id] = new_q_agent
+
+    
     def reward_callback(self, msg:Reward):
-        """ calls an algorithm again after processing the reward """
+        """ calls an algorithm again after processing the reward, performing RL updates"""
+        
+        self.cur_reward = msg.reward 
 
-
+        # getting the current value for that action ------- by gettnii=d
+        self.V_s_prime = self.min_max_value()
+        
+        self.update_matrix()
+        # after you update --- call action
+        
+        self.t += 1  # update number of iterations 
         self.start_RL_algorithm()
 
 
@@ -83,11 +147,13 @@ class ReinforceLearn(Node):
         self.get_logger().info(f'Saved RL matrix to: {matrix_path}')
         rclpy.shutdown()
 
+    
+
 
 
 def main(args=None):
     rclpy.init(args=args)
-    player = sys.argv[1:] # Attack (A), Defend (D)
+    # player = sys.argv[1:] # Attack (A), Defend (D)
     node = ReinforceLearn()
     try:
         rclpy.spin(node)
