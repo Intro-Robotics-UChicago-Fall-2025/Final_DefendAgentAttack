@@ -100,8 +100,8 @@ def main():
 
             new_act = [a_act, d_act]
             find_act = [i for i, state in enumerate(actions) if state.tolist() == new_act][0]
-            if find_act != 0: 
-                find_act += 1 
+            # if find_act == 0: 
+            #     find_act += 1 
 
             state_nstate[curr_idx][next_idx] = int(find_act) # or the defalt value 
 
