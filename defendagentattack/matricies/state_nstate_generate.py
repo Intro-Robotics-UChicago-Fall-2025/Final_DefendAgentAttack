@@ -6,7 +6,7 @@ import os
 
 def helper_valid_act(n_st, c_st, act_ls,
                       who): # if defense is moving bod y, arm has to be zero 
-    state_to_act = {0: [0,1,2], 1: [0,3,4]}
+    state_to_act = {0: [0,1,2], 1: [3,4,5]}
 
     if who == "A" and  n_st[1] > 0 and n_st[0] == 0: 
 #for attack, no action allowed to achieve a state where teh arm is not at home base adn the body is home, harms robot

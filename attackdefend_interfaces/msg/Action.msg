@@ -1,1 +1,1 @@
-tuple(int16) action_id
+int16 action_id

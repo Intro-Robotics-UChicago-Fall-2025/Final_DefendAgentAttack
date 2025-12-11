@@ -127,9 +127,6 @@ class ReinforceLearn(Node):
         """ calls an algorithm again after processing the reward, performing RL updates"""
         
         self.cur_reward = msg.reward 
-
-        # getting the current value for that action ------- by gettnii=d
-        self.V_s_prime = self.min_max_value()
         
         self.update_matrix()
         # after you update --- call action
@@ -146,9 +143,6 @@ class ReinforceLearn(Node):
 
         self.get_logger().info(f'Saved RL matrix to: {matrix_path}')
         rclpy.shutdown()
-
-    
-
 
 
 def main(args=None):

@@ -24,7 +24,8 @@ setup(
         'console_scripts': [
             'reward-simulator = defendagentattack.reward_simlator', 
             'multi-agent = defendagentattack.multiagent.py',
-            'fight-now = defendagentattack.fightnow.py '
+            'fight-now = defendagentattack.fightnow.py',
+            'rl-move = defendagentattack.rl_agent_nodes.py',
         ],
     },
 )
